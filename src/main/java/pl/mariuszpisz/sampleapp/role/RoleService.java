@@ -35,7 +35,7 @@ public class RoleService {
     }
 
     private void checkDuplicate(Role role) {
-        if (roleRepository.existsByNameAndSystem(role.getName(), role.getSystem())) {
+        if (roleRepository.existsByName(role.getName())) {
             throw new ResourceAlreadyExistException(format(
                     "Role with name: %s already exist for system %s", role.getName(), role.getSystem()));
         }
