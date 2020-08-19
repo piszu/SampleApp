@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import pl.mariuszpisz.sampleapp.commons.exceptions.ResourceAlreadyExistException;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static pl.mariuszpisz.sampleapp.utils.RoleTestUtils.*;
 
@@ -71,4 +73,22 @@ class RoleServiceTest {
         assertThat(roleWithOtherSystem.getName(), is(ANY_ROLE_NAME));
         assertThat(roleWithOtherSystem.getSystem(), is(ANY_OTHER_SYSTEM_NAME));
     }
+
+    @Test
+    void shouldThrowOnCreateWhenSameRoleExist() {
+        //given
+        var newRole = anyRole();
+
+        when(roleRepository.existsByNameAndSystem(newRole.getName(), newRole.getSystem()))
+                .thenReturn(true);
+
+        //when
+        var exception = assertThrows(ResourceAlreadyExistException.class,
+                () -> roleService.createRole(newRole));
+
+        //then
+        assertThat(exception.getMessage(), not(blankOrNullString()));
+    }
+
+
 }
